@@ -123,10 +123,13 @@ function evaluate({ currentOperand, previousOperand, operation }) {
   const previous = parseFloat(previousOperand);
   if (isNaN(current) || isNaN(previous)) return null;
   if (operation === "÷" && current === 0) return null;
-  if(currentOperand.includes(".")||previousOperand.includes(".")){
+  if (currentOperand.includes(".") || previousOperand.includes(".")) {
     const decimalPart1 = currentOperand.split(".");
     const decimalPart2 = previousOperand.split(".");
-    decimalPlaces = Math.max(decimalPart1[1]?.length ?? 0, decimalPart2[1]?.length ?? 0);
+    decimalPlaces = Math.max(
+      decimalPart1[1]?.length ?? 0,
+      decimalPart2[1]?.length ?? 0
+    );
   }
 
   let computation = "";
@@ -146,8 +149,9 @@ function evaluate({ currentOperand, previousOperand, operation }) {
     default:
       return null;
   }
-  //if decimalPlaces is greater than 0, use to fix else dont
-  return decimalPlaces > 0 ? computation.toFixed(decimalPlaces).toString() : computation.toString();
+  return decimalPlaces > 0
+    ? computation.toFixed(decimalPlaces).toString()
+    : computation.toString();
 }
 
 const INTEGER_FORMATTER = new Intl.NumberFormat("en-US", {
