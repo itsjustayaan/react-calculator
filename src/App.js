@@ -38,7 +38,7 @@ function reducer(state, { type, payload }) {
       if (payload.digit === "0" && state.currentOperand === "0") {
         return state;
       }
-      if (payload.digit === "." && state.currentOperand?.includes(".")) {
+      if (payload.digit === "." && state.currentOperand.includes(".")) {
         return state;
       }
 
@@ -47,6 +47,12 @@ function reducer(state, { type, payload }) {
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
     case ACTIONS.CHOOOSE_OPERATION:
+      if (state.currentOperand == null && payload.operation === "-") {
+        return {
+          ...state,
+          currentOperand: "-",
+        };
+      }
       if (state.currentOperand == null && state.previousOperand == null)
         return state;
       if (state.currentOperand == null && state.previousOperand != null) {
@@ -112,10 +118,16 @@ function reducer(state, { type, payload }) {
 }
 
 function evaluate({ currentOperand, previousOperand, operation }) {
+  let decimalPlaces = 0;
   const current = parseFloat(currentOperand);
   const previous = parseFloat(previousOperand);
   if (isNaN(current) || isNaN(previous)) return null;
   if (operation === "÷" && current === 0) return null;
+  if(currentOperand.includes(".")||previousOperand.includes(".")){
+    const decimalPart1 = currentOperand.split(".");
+    const decimalPart2 = previousOperand.split(".");
+    decimalPlaces = Math.max(decimalPart1[1]?.length ?? 0, decimalPart2[1]?.length ?? 0);
+  }
 
   let computation = "";
   switch (operation) {
@@ -134,7 +146,8 @@ function evaluate({ currentOperand, previousOperand, operation }) {
     default:
       return null;
   }
-  return computation.toString();
+  //if decimalPlaces is greater than 0, use to fix else dont
+  return decimalPlaces > 0 ? computation.toFixed(decimalPlaces).toString() : computation.toString();
 }
 
 const INTEGER_FORMATTER = new Intl.NumberFormat("en-US", {
@@ -143,6 +156,7 @@ const INTEGER_FORMATTER = new Intl.NumberFormat("en-US", {
 
 function formatOperand(operand) {
   if (operand == null) return;
+  if (operand === "-") return operand;
   const [integerPart, decimalPart] = operand.split(".");
   if (decimalPart == null)
     return INTEGER_FORMATTER.format(parseInt(integerPart));
