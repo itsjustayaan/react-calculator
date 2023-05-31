@@ -15,6 +15,13 @@ export const ACTIONS = {
 function reducer(state, { type, payload }) {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
+      if (state.overwrite && payload.digit === "."){
+        return {
+          ...state,
+          overwrite: false,
+          currentOperand: "0.",
+        };
+      }
       if (state.overwrite) {
         return {
           ...state,
@@ -22,7 +29,7 @@ function reducer(state, { type, payload }) {
           currentOperand: payload.digit,
         };
       }
-      if (state.currentOperand == null && payload.digit === ".") {
+      if ((state.currentOperand == null || state.previousOperand == null) && payload.digit === ".") {
         return {
           ...state,
           currentOperand: "0" + payload.digit,
@@ -34,6 +41,7 @@ function reducer(state, { type, payload }) {
       if (payload.digit === "." && state.currentOperand?.includes(".")) {
         return state;
       }
+
       return {
         ...state,
         currentOperand: `${state.currentOperand || ""}${payload.digit}`,
